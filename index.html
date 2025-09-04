@@ -132,12 +132,34 @@
     <button onclick="scrollToTop()" id="scrollToTopBtn" title="חזרה למעלה">↑</button>
 
     <div id="holidayModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('holidayModal')">&times;</span>
-            <h2 id="holidayModalTitle">רשימת ימי שבתון קרובים</h2>
-            <ul id="holidayList"></ul>
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('holidayModal')">&times;</span>
+        <h2 id="holidayModalTitle">אודות וחגים קרובים</h2>
+
+        <div style="margin-bottom: 1.5rem;">
+            <p>כלי זה נועד למצוא את התאריך הבטוח והנוח ביותר להחלפת סיסמה. המטרה היא למנוע מצב שבו סיסמה פגה ביום לא נוח (כמו סוף שבוע או חג), ובכך להקל על המשתמש ולמנוע עומס מיותר על מחלקת ה-IT.</p>
+            <p>הכלי מאפשר התאמה אישית מלאה של החוקים באמצעות תפריט ההגדרות (⚙️), כולל:</p>
+            <ul style="padding-right: 20px; margin-top: 0.5rem;">
+                <li>קביעת ימי שבוע חסומים.</li>
+                <li>הוספת תקופות חסימה מותאמות אישית (למשל, "סוף רבעון").</li>
+                <li>הפעלה או כיבוי של חסימת ערבי חג.</li>
+                <li>ייצוא וייבוא של כל ההגדרות לצורך גיבוי או שיתוף.</li>
+            </ul>
         </div>
+        <hr>
+
+        <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">ימי שבתון קרובים:</h3>
+        <ul id="holidayList" style="list-style-type: none; padding: 0; max-height: 200px; overflow-y: auto;"></ul>
     </div>
+</div>
+        
+        <hr>
+
+        <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">ימי שבתון קרובים:</h3>
+        <ul id="holidayList" style="list-style-type: none; padding: 0; max-height: 200px; overflow-y: auto;"></ul>
+    </div>
+</div>
+</div>
     
     <div id="settingsModal" class="modal">
         <div class="modal-content">
@@ -385,33 +407,32 @@
         }
         
         function openHolidaysModal() {
-            const list = document.getElementById('holidayList');
-            const modalTitle = document.getElementById('holidayModalTitle');
-            const currentLifespan = parseInt(document.getElementById('lifespan').value) || settings.lifespan || 180;
-            modalTitle.textContent = `רשימת ימי שבתון ב-${currentLifespan} הימים הקרובים`;
-            list.innerHTML = '';
-            
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const futureDate = new Date(today);
-            futureDate.setDate(today.getDate() + currentLifespan);
+    const list = document.getElementById('holidayList');
+    // The title is now static in the HTML, so dynamic title logic is removed.
+    const currentLifespan = parseInt(document.getElementById('lifespan').value) || settings.lifespan || 180;
+    list.innerHTML = '';
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + currentLifespan);
 
-            const relevantHolidays = Object.entries(settings.holidays)
-                .map(([dateStr, desc]) => ({ date: new Date(dateStr + "T00:00:00"), desc }))
-                .filter(h => h.date >= today && h.date <= futureDate)
-                .sort((a,b) => a.date - b.date);
+    const relevantHolidays = Object.entries(settings.holidays)
+        .map(([dateStr, desc]) => ({ date: new Date(dateStr + "T00:00:00"), desc }))
+        .filter(h => h.date >= today && h.date <= futureDate)
+        .sort((a,b) => a.date - b.date);
 
-            if (relevantHolidays.length > 0) {
-                relevantHolidays.forEach(h => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>${h.date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })}:</strong> ${h.desc}`;
-                    list.appendChild(li);
-                });
-            } else {
-                list.innerHTML = '<li>לא נמצאו ימי שבתון בטווח הזמן שנבחר.</li>';
-            }
-            openModal('holidayModal');
-        }
+    if (relevantHolidays.length > 0) {
+        relevantHolidays.forEach(h => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${h.date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })}:</strong> ${h.desc}`;
+            list.appendChild(li);
+        });
+    } else {
+        list.innerHTML = '<li>לא נמצאו ימי שבתון בטווח הזמן שנבחר.</li>';
+    }
+    openModal('holidayModal');
+}
         
         function openModal(modalId) { document.getElementById(modalId).style.display = "flex"; }
         function closeModal(modalId) { document.getElementById(modalId).style.display = "none"; }

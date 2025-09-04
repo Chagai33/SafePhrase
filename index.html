@@ -8,12 +8,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     
     <style>
-        :root { --primary-color: #1a73e8; }
-        html { scroll-behavior: smooth; } /* מאפשר גלילה חלקה */
+        :root { --primary-color: #1a73e8; --light-gray: #f0f2f5; --border-color: #ccc; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; justify-content: flex-start; align-items: center; flex-direction: column;
-            min-height: 100vh; padding: 2rem 1rem; margin: 0; background-color: #f0f2f5;
+            min-height: 100vh; padding: 2rem 1rem; margin: 0; background-color: var(--light-gray);
             box-sizing: border-box;
         }
         .container {
@@ -27,16 +26,17 @@
         h1 { color: var(--primary-color); font-size: 1.5rem; margin: 0; }
         .icon { font-size: 1.5rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
         .icon:hover { opacity: 1; }
-        .settings-icon { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
-        .info-icon { position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 1.6rem; }
-
+        .settings-icon {
+            position: absolute; left: 0; top: 50%;
+            transform: translateY(-50%);
+        }
         .input-group { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
         @media (min-width: 600px) { .input-group { flex-direction: row; } }
         .input-field { flex: 1; text-align: right; }
         label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
         input, select, button { font-family: inherit; font-size: 1rem; }
         input[type="text"], input[type="number"] {
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px;
             box-sizing: border-box; background-color: white; text-align: right;
         }
         button {
@@ -44,32 +44,12 @@
             background-color: var(--primary-color); border: none; border-radius: 5px; cursor: pointer;
         }
         #results { margin-top: 2rem; text-align: right; }
-        .result-item { background-color: #e8f0fe; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
+        .result-item {
+            background-color: #e8f0fe; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;
+        }
         .footer { margin-top: 2rem; text-align: center; font-size: 0.8rem; color: #888; }
 
-        /* --- 1. עיצוב חדש לכפתור חזרה למעלה --- */
-        #scrollToTopBtn {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 99;
-            border: none;
-            outline: none;
-            background-color: var(--primary-color);
-            color: white;
-            cursor: pointer;
-            padding: 0;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            font-size: 22px;
-            line-height: 45px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        #scrollToTopBtn:hover { background-color: #155ab6; }
-
-        /* --- שאר עיצובי המודאלים --- */
+        /* Modal Styles */
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
             overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center;
@@ -86,7 +66,11 @@
         .lifespan-selector { display: flex; align-items: center; gap: 0.5rem; }
         .lifespan-selector button { font-size: 0.9rem; padding: 5px 10px; background-color: #ddd; color: #333; }
         .lifespan-selector button.active { background-color: var(--primary-color); color: white; }
-        .settings-io button, .save-settings-btn { font-size: 0.9rem; padding: 8px 12px; }
+        #custom-periods-list { list-style-type: none; padding: 0; max-height: 100px; overflow-y: auto; }
+        #custom-periods-list li { display: flex; justify-content: space-between; align-items: center; background: #f0f2f5; padding: 5px 10px; border-radius: 5px; margin-bottom: 5px;}
+        .settings-io button, .save-settings-btn {
+            font-size: 0.9rem; padding: 8px 12px;
+        }
         .settings-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;}
         #save-confirmation { color: green; font-weight: bold; visibility: hidden; transition: visibility 0s 1s; }
     </style>
@@ -97,7 +81,6 @@
         <div class="header">
             <span class="icon settings-icon" onclick="openSettingsModal()">⚙️</span>
             <h1>תזמון סיסמאות חכם</h1>
-            <span class="icon info-icon" onclick="openHolidaysModal()">ℹ️</span>
         </div>
 
         <div class="input-group">
@@ -118,27 +101,83 @@
     
     <div class="footer">
         <p>Dev: Chagai Yechiel</p>
-        <p>Version 7.0</p>
+        <p>Version 6.1</p>
     </div>
 
-    <button onclick="scrollToTop()" id="scrollToTopBtn" title="חזרה למעלה">↑</button>
+    <div id="holidayModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('holidayModal')">&times;</span>
+            <h2 id="holidayModalTitle">רשימת ימי שבתון קרובים</h2>
+            <ul id="holidayList"></ul>
+        </div>
+    </div>
 
-    <div id="holidayModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('holidayModal')">&times;</span><h2 id="holidayModalTitle">רשימת ימי שבתון קרובים</h2><ul id="holidayList"></ul></div></div>
-    <div id="settingsModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('settingsModal')">&times;</span><h2>הגדרות תכנון</h2><div class="modal-section"><label for="lifespan">תוקף סיסמה (בימים):</label><div class="lifespan-selector"><button data-days="30">30</button><button data-days="90">90</button><button data-days="180">180</button><button data-days="365">365</button><input type="number" id="lifespan" placeholder="מותאם אישית" oninput="updateLifespanButtons(this.value)"></div></div><div class="modal-section"><label>ימי התחלה חסומים:</label><div class="day-selector" id="start-day-selector"></div></div><div class="modal-section"><label>ימי תפוגה חסומים:</label><div class="day-selector" id="exp-day-selector"></div></div><div class="settings-footer"><div class="settings-io"><button onclick="exportSettings()">ייצא</button><button onclick="importSettings()">ייבא</button></div><div><span id="save-confirmation">נשמר!</span><button class="save-settings-btn" onclick="saveAndCloseSettings()">שמור וסגור</button></div></div><input type="file" id="importFile" style="display:none;" onchange="handleFileImport(event)"></div></div>
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('settingsModal')">&times;</span>
+            <h2>
+                <span class="icon" onclick="openHolidaysModal()" title="הצג ימי שבתון קרובים">📅</span>
+                הגדרות תכנון
+            </h2>
+            
+            <div class="modal-section">
+                <label for="lifespan">תוקף סיסמה (בימים):</label>
+                <div class="lifespan-selector">
+                    <button data-days="30">30</button>
+                    <button data-days="90">90</button>
+                    <button data-days="180">180</button>
+                    <button data-days="365">365</button>
+                    <input type="number" id="lifespan" placeholder="מותאם אישית" oninput="updateLifespanButtons(this.value)">
+                </div>
+            </div>
 
+            <div class="modal-section">
+                <label>ימי התחלה חסומים:</label>
+                <div class="day-selector" id="start-day-selector"></div>
+            </div>
+            
+            <div class="modal-section">
+                <label>ימי תפוגה חסומים:</label>
+                <div class="day-selector" id="exp-day-selector"></div>
+            </div>
+
+            <div class="modal-section">
+                <label>הוסף תקופת חסימה מותאמת אישית:</label>
+                <div class="input-group">
+                    <input type="text" id="customPeriodName" placeholder="שם התקופה (למשל, סוף רבעון)">
+                    <input type="text" id="customPeriodStart" placeholder="תאריך התחלה">
+                    <input type="text" id="customPeriodEnd" placeholder="תאריך סיום">
+                </div>
+                <button class="settings-io" onclick="addCustomPeriod()">הוסף תקופה</button>
+                <ul id="custom-periods-list"></ul>
+            </div>
+            
+            <div class="settings-footer">
+                <div class="settings-io">
+                    <button onclick="exportSettings()">ייצא</button>
+                    <button onclick="importSettings()">ייבא</button>
+                </div>
+                <div>
+                    <span id="save-confirmation">נשמר!</span>
+                    <button class="save-settings-btn" onclick="saveAndCloseSettings()">שמור וסגור</button>
+                </div>
+            </div>
+            <input type="file" id="importFile" style="display:none;" onchange="handleFileImport(event)">
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/he.js"></script>
     
     <script>
-        // (כל קוד ה-JS הקיים נשאר כאן)
         let settings = {};
         const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
 
         function setDefaultSettings() {
              settings = {
                 lifespan: 180,
-                blockedStartDays: [0, 4, 5, 6], blockedExpirationDays: [0, 4, 5, 6],
+                blockedStartDays: [5, 6],
+                blockedExpirationDays: [5, 6],
                 holidays: {
                     "2025-09-23": "ראש השנה א'", "2025-09-24": "ראש השנה ב'", "2025-10-02": "יום כיפור",
                     "2025-10-07": "סוכות", "2025-10-14": "שמחת תורה", "2026-04-02": "פסח א'",
@@ -151,57 +190,157 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadSettings(); initializeDatePickers(); setupEventListeners();
+            loadSettings();
+            initializeDatePickers();
+            setupEventListeners();
         });
 
         function initializeDatePickers() {
             const config = {
                 dateFormat: "d/m/Y", locale: "he", minDate: "today",
-                altInput: true, altFormat: "j F, Y", allowInput: true,
-                onKeyDown: (selectedDates, dateStr, instance, e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const parts = e.target.value.split('/');
-                        if (parts.length === 3 && parts[2].length === 2) {
-                            parts[2] = '20' + parts[2];
-                            instance.setDate(parts.join('/'), true, "d/m/Y");
-                        }
-                        findSafeDates();
-                    }
-                }
+                altInput: true, altFormat: "j F, Y", allowInput: true
             };
             flatpickr("#startDate, #endDate", config);
             flatpickr("#customPeriodStart, #customPeriodEnd", {...config, minDate: null});
         }
+
+        function setupEventListeners() {
+            // --- תיקון: הוספת preventDefault לפעולת ה-Enter ---
+            document.querySelectorAll('#startDate, #endDate').forEach(el => {
+                el._flatpickr.input.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        findSafeDates();
+                    }
+                });
+            });
+
+            document.querySelector('.lifespan-selector').addEventListener('click', (e) => {
+                if(e.target.tagName === 'BUTTON') {
+                    const days = e.target.dataset.days;
+                    document.getElementById('lifespan').value = days;
+                    updateLifespanButtons(days);
+                }
+            });
+        }
         
-        // --- 3. קוד ה-JavaScript החדש לכפתור ---
-        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
-        window.onscroll = function() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                scrollToTopBtn.style.display = "block";
-            } else {
-                scrollToTopBtn.style.display = "none";
+        function updateLifespanButtons(currentDays) {
+            document.querySelectorAll('.lifespan-selector button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.days === String(currentDays));
+            });
+            if (!['30','90', '180', '365'].includes(String(currentDays))) {
+                 document.querySelectorAll('.lifespan-selector button').forEach(btn => btn.classList.remove('active'));
             }
-        };
-        function scrollToTop() {
-            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+        
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('safeScheduleSettings');
+            if (savedSettings) {
+                settings = JSON.parse(savedSettings);
+            } else {
+                setDefaultSettings();
+            }
+        }
+        function saveSettings() {
+            localStorage.setItem('safeScheduleSettings', JSON.stringify(settings));
         }
 
-        // --- (שאר פונקציות ה-JS ללא שינוי) ---
-        function setupEventListeners(){document.querySelectorAll(".lifespan-selector").forEach(t=>t.addEventListener("click",e=>{"BUTTON"===e.target.tagName&&(e=e.target.dataset.days,document.getElementById("lifespan").value=e,updateLifespanButtons(e))}))}
-        function updateLifespanButtons(t){document.querySelectorAll(".lifespan-selector button").forEach(e=>{e.classList.toggle("active",e.dataset.days===String(t))}),["30","90","180","365"].includes(String(t))||document.querySelectorAll(".lifespan-selector button").forEach(t=>t.classList.remove("active"))}
-        function loadSettings(){const t=localStorage.getItem("safeScheduleSettings");t?settings=JSON.parse(t):setDefaultSettings()}
-        function saveSettings(){localStorage.setItem("safeScheduleSettings",JSON.stringify(settings))}
-        function openSettingsModal(){document.getElementById("lifespan").value=settings.lifespan,updateLifespanButtons(settings.lifespan),populateDaySelectors(),renderCustomPeriods(),openModal("settingsModal")}
-        function saveAndCloseSettings(){settings.lifespan=parseInt(document.getElementById("lifespan").value)||180,settings.blockedStartDays=Array.from(document.querySelectorAll("#start-day-selector input:checked")).map(t=>parseInt(t.value)),settings.blockedExpirationDays=Array.from(document.querySelectorAll("#exp-day-selector input:checked")).map(t=>parseInt(t.value)),saveSettings();const t=document.getElementById("save-confirmation");t.style.visibility="visible",setTimeout(()=>{t.style.visibility="hidden",closeModal("settingsModal")},1e3)}
-        function isProblematicDate(t,e){const o=t.getDay(),n=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`,s=e?settings.blockedStartDays:settings.blockedExpirationDays;if(s.includes(o)||settings.holidays[n])return!0;for(const o of settings.customPeriods){const n=new Date(o.start+"T00:00:00"),s=new Date(o.end+"T00:00:00");if(t>=n&&t<=s)return!0}return!1}
-        function findSafeDates(){const t=document.querySelector("#startDate")._flatpickr.selectedDates[0];let e=document.querySelector("#endDate")._flatpickr.selectedDates[0];const o=document.getElementById("results");if(o.innerHTML="",!t)return void(o.innerHTML='<p style="color: red;">יש לבחור תאריך התחלה.</p>');e||(e=t);if(e<t)return void(o.innerHTML='<p style="color: red;">תאריך הסיום חייב להיות אחרי תאריך ההתחלה.</p>');let n=0;let s=new Date(t);for(;s<=e;)isProblematicDate(s,!0)||(d=new Date(s),d.setDate(d.getDate()+settings.lifespan),isProblematicDate(d,!1)||(n++,o.innerHTML+=`<div class="result-item"><div><strong style="color: var(--primary-color);">✅ תאריך התחלה מומלץ:</strong> ${s.toLocaleDateString("he-IL",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"})}</div><div><strong>   -> תאריך התפוגה הצפוי:</strong> ${d.toLocaleDateString("he-IL",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"})}</div></div>`)),s.setDate(s.getDate()+1);var d;0===n&&(o.innerHTML='<p style="color: orange; font-weight: bold; margin-top: 1rem;">לא נמצאו תאריכים מומלצים בטווח שהוגדר על פי הכללים הנוכחיים.</p>')}
-        function openHolidaysModal(){const t=document.getElementById("holidayList"),e=document.getElementById("holidayModalTitle"),o=parseInt(document.getElementById("lifespan").value)||settings.lifespan;e.textContent=`רשימת ימי שבתון ב-${o} הימים הקרובים`,t.innerHTML="";const n=new Date,s=new Date;s.setDate(n.getDate()+o);const i=Object.entries(settings.holidays).map(([t,e])=>({date:new Date(t+"T00:00:00"),desc:e})).filter(t=>t.date>=n&&t.date<=s).sort((t,e)=>t.date-e.date);i.length>0?i.forEach(e=>{const o=document.createElement("li");o.innerHTML=`<strong>${e.date.toLocaleDateString("he-IL",{day:"2-digit",month:"2-digit",year:"numeric"})}:</strong> ${e.desc}`,t.appendChild(o)}):t.innerHTML="<li>לא נמצאו ימי שבתון בטווח הזמן שנבחר.</li>",openModal("holidayModal")}
-        function closeModal(t){document.getElementById(t).style.display="none"}
-        window.onclick=function(t){t.target.classList.contains("modal")&&(t.target.style.display="none")}
-        function populateDaySelectors(){const t=document.getElementById("start-day-selector"),e=document.getElementById("exp-day-selector");t.innerHTML="",e.innerHTML="";for(let o=0;o<7;o++)t.innerHTML+=`<label><input type="checkbox" value="${o}" ${settings.blockedStartDays.includes(o)?"checked":""}> ${dayNames[o]}</label>`,e.innerHTML+=`<label><input type="checkbox" value="${o}" ${settings.blockedExpirationDays.includes(o)?"checked":""}> ${dayNames[o]}</label>`}
-        function exportSettings(){const t="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(settings)),e=document.createElement("a");e.setAttribute("href",t),e.setAttribute("download","schedule_settings.json"),document.body.appendChild(e),e.click(),e.remove()}
-        function importSettings(){document.getElementById("importFile").click()}function handleFileImport(t){const e=t.target.files[0];if(e){const o=new FileReader;o.onload=function(t){try{const e=JSON.parse(t.target.result);settings=e,saveSettings(),alert("ההגדרות יובאו בהצלחה!"),openSettingsModal()}catch(t){alert("שגיאה בקריאת הקובץ. ודא שזהו קובץ הגדרות תקין.")}},o.readAsText(e)}}
+        function openSettingsModal() {
+            document.getElementById('lifespan').value = settings.lifespan;
+            updateLifespanButtons(settings.lifespan);
+            populateDaySelectors();
+            renderCustomPeriods();
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+        
+        function saveAndCloseSettings() {
+            settings.lifespan = parseInt(document.getElementById('lifespan').value) || 180;
+            settings.blockedStartDays = Array.from(document.querySelectorAll('#start-day-selector input:checked')).map(cb => parseInt(cb.value));
+            settings.blockedExpirationDays = Array.from(document.querySelectorAll('#exp-day-selector input:checked')).map(cb => parseInt(cb.value));
+            saveSettings();
+            const confirmation = document.getElementById('save-confirmation');
+            confirmation.style.visibility = 'visible';
+            setTimeout(() => {
+                confirmation.style.visibility = 'hidden';
+                closeModal('settingsModal');
+            }, 1000);
+        }
+
+        function isProblematicDate(date, isStart) {
+            const dayOfWeek = date.getDay();
+            const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            const blockedDays = isStart ? settings.blockedStartDays : settings.blockedExpirationDays;
+
+            if (blockedDays.includes(dayOfWeek) || settings.holidays[dateString]) return true;
+
+            for(const period of settings.customPeriods) {
+                const pStart = new Date(period.start + "T00:00:00");
+                const pEnd = new Date(period.end + "T00:00:00");
+                if (date >= pStart && date <= pEnd) return true;
+            }
+            return false;
+        }
+
+        function findSafeDates() {
+            const startDate = document.querySelector("#startDate")._flatpickr.selectedDates[0];
+            let endDate = document.querySelector("#endDate")._flatpickr.selectedDates[0];
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (!startDate) { resultsDiv.innerHTML = '<p style="color: red;">יש לבחור תאריך התחלה.</p>'; return; }
+            if (!endDate) { endDate = startDate; }
+            if (endDate < startDate) { resultsDiv.innerHTML = '<p style="color: red;">תאריך הסיום חייב להיות אחרי תאריך ההתחלה.</p>'; return; }
+
+            let foundCount = 0;
+            let currentDay = new Date(startDate);
+            while (currentDay <= endDate) {
+                if (!isProblematicDate(currentDay, true)) {
+                    const expirationDate = new Date(currentDay);
+                    expirationDate.setDate(expirationDate.getDate() + settings.lifespan);
+                    if (!isProblematicDate(expirationDate, false)) {
+                        foundCount++;
+                        resultsDiv.innerHTML += `<div class="result-item"><div><strong style="color: var(--primary-color);">✅ תאריך התחלה מומלץ:</strong> ${currentDay.toLocaleDateString('he-IL', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}</div><div><strong>   -> תאריך התפוגה הצפוי:</strong> ${expirationDate.toLocaleDateString('he-IL', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}</div></div>`;
+                    }
+                }
+                currentDay.setDate(currentDay.getDate() + 1);
+            }
+            if (foundCount === 0) {
+                resultsDiv.innerHTML = '<p style="color: orange; font-weight: bold; margin-top: 1rem;">לא נמצאו תאריכים מומלצים בטווח שהוגדר על פי הכללים הנוכחיים.</p>';
+            }
+        }
+        
+        function openHolidaysModal() {
+            const list = document.getElementById('holidayList');
+            const modalTitle = document.getElementById('holidayModalTitle');
+            const currentLifespan = parseInt(document.getElementById('lifespan').value) || settings.lifespan;
+            modalTitle.textContent = `רשימת ימי שבתון ב-${currentLifespan} הימים הקרובים`;
+            list.innerHTML = '';
+            
+            const today = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(today.getDate() + currentLifespan);
+
+            const relevantHolidays = Object.entries(settings.holidays)
+                .map(([dateStr, desc]) => ({ date: new Date(dateStr + "T00:00:00"), desc }))
+                .filter(h => h.date >= today && h.date <= futureDate)
+                .sort((a,b) => a.date - b.date);
+
+            if (relevantHolidays.length > 0) {
+                relevantHolidays.forEach(h => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${h.date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })}:</strong> ${h.desc}`;
+                    list.appendChild(li);
+                });
+            } else {
+                list.innerHTML = '<li>לא נמצאו ימי שבתון בטווח הזמן שנבחר.</li>';
+            }
+            openModal('holidayModal');
+        }
+
+        function closeModal(modalId) { document.getElementById(modalId).style.display = "none"; }
+        window.onclick = function(event) { if (event.target.classList.contains('modal')) { event.target.style.display = "none"; } }
+        function populateDaySelectors(){const t=document.getElementById("start-day-selector"),e=document.getElementById("exp-day-selector");t.innerHTML="",e.innerHTML="";for(let s=0;s<7;s++)t.innerHTML+=`<label><input type="checkbox" value="${s}" ${settings.blockedStartDays.includes(s)?"checked":""}> ${dayNames[s]}</label>`,e.innerHTML+=`<label><input type="checkbox" value="${s}" ${settings.blockedExpirationDays.includes(s)?"checked":""}> ${dayNames[s]}</label>`}
+        function exportSettings(){const t="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(settings)),e=document.createElement("a");e.setAttribute("href",t),e.setAttribute("download","schedule_settings.json"),document.body.appendChild(e),t.click(),t.remove()}function importSettings(){document.getElementById("importFile").click()}function handleFileImport(t){const e=t.target.files[0];if(e){const s=new FileReader;s.onload=function(t){try{const e=JSON.parse(t.target.result);settings=e,saveSettings(),alert("ההגדרות יובאו בהצלחה!"),openSettingsModal()}catch(t){alert("שגיאה בקריאת הקובץ. ודא שזהו קובץ הגדרות תקין.")}},s.readAsText(e)}}function addCustomPeriod(){const t=document.getElementById("customPeriodName").value,e=document.querySelector("#customPeriodStart")._flatpickr.selectedDates[0],s=document.querySelector("#customPeriodEnd")._flatpickr.selectedDates[0];t&&e&&s&&s>=e?(settings.customPeriods.push({name:t,start:e.toISOString().split("T")[0],end:s.toISOString().split("T")[0]}),saveSettings(),renderCustomPeriods(),document.getElementById("customPeriodName").value="",document.querySelector("#customPeriodStart")._flatpickr.clear(),document.querySelector("#customPeriodEnd")._flatpickr.clear()):alert("נא למלא שם ותקופת תאריכים תקינה.")}function removeCustomPeriod(t){settings.customPeriods.splice(t,1),saveSettings(),renderCustomPeriods()}function renderCustomPeriods(){const t=document.getElementById("custom-periods-list");t.innerHTML="",settings.customPeriods.forEach((e,s)=>{t.innerHTML+=`<li><span>${e.name} (${e.start} - ${e.end})</span><span class="close-btn" onclick="removeCustomPeriod(${s})">&times;</span></li>`})}
     </script>
 
 </body>

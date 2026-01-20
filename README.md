@@ -61,7 +61,7 @@ Access the live application at: [https://safephrase.netlify.app/](https://safeph
 
 ## 📸 Screenshots
 
-![Main Interface](./screenshot.png)
+![Main Interface](./screenshot1.png)
 
 ---
 

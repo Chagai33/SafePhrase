@@ -1,77 +1,86 @@
-תזמון סיסמאות חכם (Smart Password Scheduler)
-גרסה 8.0
+# 📅 Smart Password Scheduler
 
-כלי אינטרנטי חכם למציאת התאריכים הבטוחים והנוחים ביותר לקביעת סיסמה חדשה. האפליקציה מחשבת את תאריך התפוגה הצפוי ומוודאת שגם תאריך ההתחלה וגם תאריך התפוגה לא יפלו על סופי שבוע, חגים, או תקופות חסומות אחרות המוגדרות על ידי המשתמש.
+![Version](https://img.shields.io/badge/version-2.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Platform](https://img.shields.io/badge/platform-Web-orange.svg)
 
-(מומלץ להחליף את שם הקובץ לשם תמונת המסך שלך)
+> **"Proactive IT management: Never let a password expire on a weekend."**
 
-🎯 מטרה
-בעולם ה-IT, החלפת סיסמה בתאריך שגוי עלולה לגרום לתפוגה שלה ביום הכי פחות נוח – למשל, בבוקר של יום ראשון, בערב חג, או במהלך חופשה. כלי זה נועד לפתור את הבעיה על ידי מתן המלצות לתאריכי התחלה "בטוחים", שהתפוגה שלהם תיפול ביום עבודה רגיל ונוח.
+**Smart Password Scheduler** is a client-side utility designed to optimize the password rotation lifecycle for organizations. It calculates safe "Start Dates" to ensure that the future expiration date falls on a valid business day—avoiding weekends, holidays, and custom blackout periods.
 
-✨ תכונות עיקריות
-חישוב תאריכים בטוחים: מציאת תאריכים אופטימליים בטווח נבחר.
+---
 
-מנוע חוקים גמיש: הימנעות אוטומטית מתאריכי התחלה ותפוגה הנופלים על:
+## 💡 The Story (Why I built this)
 
-ימי שבוע ספציפיים (ניתן להתאמה).
+**The Problem:** Managing password resets for **hundreds of employees** creates a massive logistical burden on the IT department. When passwords expire on weekends, holidays, or during critical business periods, it leads to locked accounts, frustrated users, and a spike in emergency support tickets.
 
-חגים רשמיים וימי שבתון.
+**The Solution:** I developed this script to proactively distribute the load. By calculating the expiration date *before* setting the password, we ensure that expirations occur only during standard working hours when the Help Desk is fully staffed and available to assist.
 
-"ערבי חג" (היום שלפני חג).
+---
 
-תקופות חסימה מותאמות אישית (למשל, "סוף רבעון", "חופשת קיץ").
+## 🚀 Key Features
 
-הגדרות מתקדמות:
+* **Intelligent Logic:** Validates *both* the Start Date and the projected Expiration Date against a rigorous set of rules.
+* **Holiday Awareness:** Built-in database of holidays (configured for 2025-2026) to prevent expirations on non-working days.
+* **Highly Configurable (⚙️):**
+    * **Lifespan:** Set your organization's policy (e.g., 90, 180 days).
+    * **Work Week:** Define exactly which days are "working days" (e.g., block Fridays/Saturdays).
+    * **Holiday Eves:** Option to block the day *before* a holiday to prevent last-minute lockouts.
+    * **Custom Blocklist:** Add specific ranges (e.g., "End of Year Freeze") to the exclusions list.
+* **Portable Configuration:** Import/Export settings to JSON to share the standard policy across the entire IT team.
+* **Zero-Dependency:** Runs as a single, standalone HTML file. Secure, fast, and requires no server installation.
 
-קביעת אורך חיי הסיסמה (תוקף בימים).
+---
 
-שליטה מלאה על הימים החסומים בשבוע.
+## 🛠️ How It Works
 
-אפשרות להפעיל/לכבות חסימת ערבי חג.
+The algorithm prevents "bad timing" by running a simulation:
 
-שמירה וניידות:
+1.  **Input:** User selects a range of potential start dates.
+2.  **Simulation:** The tool iterates through each day.
+3.  **Validation A (Start):** Checks if the start date itself is a valid working day.
+4.  **Validation B (End):** Adds the password lifespan (e.g., +180 days) and checks if the *result* is a valid working day.
+5.  **Output:** Only dates that pass **both** checks are recommended.
 
-ההגדרות נשמרות בדפדפן המקומי (localStorage).
+---
 
-אפשרות לייצא ולייבא את כל ההגדרות לקובץ JSON, לגיבוי או שיתוף.
+## 💻 Usage
 
-ממשק נקי ורספונסיבי: מתאים לשימוש במחשב שולחני ובמכשירים ניידים.
+### Option 1: Run Locally
+1.  Clone the repository:
+    ```bash
+    git clone [https://github.com/your-username/smart-password-scheduler.git](https://github.com/your-username/smart-password-scheduler.git)
+    ```
+2.  Open `index.html` in any web browser.
+3.  Set your policy rules via the **Settings (⚙️)** menu.
 
-נייד לחלוטין: כל האפליקציה ארוזה בקובץ HTML יחיד, ללא צורך בשרת.
+### Option 2: Live Demo
+Access the live application at: [https://safephrase.netlify.app/](https://safephrase.netlify.app/)
 
-🛠️ טכנולוגיות
-HTML5
+---
 
-CSS3 (עם שימוש ב-Flexbox למבנה רספונסיבי)
+## 📸 Screenshots
 
-JavaScript (Vanilla)
+![Main Interface](./screenshot.png)
 
-Flatpickr.js - ספרייה מתקדמת וקלת משקל לבחירת תאריכים.
+---
 
-🚀 איך להשתמש
-מכיוון שהכלי בנוי כקובץ HTML יחיד, השימוש בו פשוט מאוד:
+## 🎨 Tech Stack
 
-פתח את הקובץ index.html (או איך שקראת לו) בכל דפדפן מודרני.
+* **Core:** HTML5, CSS3 (Variables & Flexbox), Vanilla JavaScript (ES6+).
+* **Library:** [flatpickr](https://flatpickr.js.org/) for the advanced date picking interface.
+* **Persistence:** Uses `localStorage` to save team configurations between sessions.
 
-בחר תאריך התחלה (ותאריך סיום אופציונלי לטווח החיפוש).
+---
 
-לחץ על כפתור "מצא תאריכים מומלצים".
+## 👤 Author
 
-התוצאות המתאימות לחוקים שהוגדרו יופיעו מתחת.
+**Chagai Yechiel**
+* **LinkedIn:** [Chagai Yechiel](https://www.linkedin.com/in/chagai-yechiel/)
+* **GitHub:** [@Chagai33](https://github.com/Chagai33)
 
-התאמה אישית של החוקים
-לפני החיפוש, לחץ על אייקון גלגל השיניים (⚙️) כדי לפתוח את חלון ההגדרות. בחלון זה ניתן לשנות:
+---
 
-את תוקף הסיסמה בימים.
+## 📄 License
 
-את ימי השבוע החסומים להתחלה ולתפוגה.
-
-להוסיף תקופות חסימה עם שם ותאריכים.
-
-להפעיל או לכבות את חסימת ערבי החג.
-
-🧑‍💻 מפתח
-חגי יחיאל (Chagai Yechiel)
-
-📄 רישיון
-מומלץ להפיץ תחת רישיון MIT.
+This project is licensed under the MIT License.

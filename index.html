@@ -4,104 +4,331 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>תזמון סיסמאות חכם</title>
-    
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    
+
     <style>
-        :root { --primary-color: #1a73e8; --light-gray: #f0f2f5; --border-color: #ccc; }
-        html { scroll-behavior: smooth; }
+        :root {
+            --primary-color: #1a73e8;
+            --light-gray: #f0f2f5;
+            --border-color: #ccc;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex; justify-content: flex-start; align-items: center; flex-direction: column;
-            min-height: 100vh; padding: 2rem 1rem; margin: 0; background-color: var(--light-gray);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            margin: 0;
+            background-color: var(--light-gray);
             box-sizing: border-box;
         }
+
         .container {
-            background: white; padding: 2rem; border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); text-align: center;
-            width: 100%; max-width: 700px;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 700px;
         }
+
         .header {
-            position: relative; text-align: center; width: 100%; margin-bottom: 1.5rem;
+            position: relative;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 1.5rem;
         }
-        h1 { color: var(--primary-color); font-size: 1.5rem; margin: 0; }
-        .icon { font-size: 1.5rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
-        .icon:hover { opacity: 1; }
-        .settings-icon { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
-        .info-icon { position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 1.6rem; }
-        .input-group { display: flex; flex-direction: row; gap: 1rem; margin: 1.5rem 0; }
-        @media (min-width: 600px) { .input-group { flex-direction: row; } }
-        .input-field { flex: 1; text-align: right; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        input, select, button { font-family: inherit; font-size: 1rem; }
-        input[type="text"], input[type="number"] {
-            width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px;
-            box-sizing: border-box; background-color: white; text-align: right;
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 0;
         }
+
+        .icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .icon:hover {
+            opacity: 1;
+        }
+
+        .settings-icon {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .info-icon {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.6rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (min-width: 600px) {
+            .input-group {
+                flex-direction: row;
+            }
+        }
+
+        .input-field {
+            flex: 1;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input,
+        select,
         button {
-            padding: 12px 20px; font-weight: bold; color: white;
-            background-color: var(--primary-color); border: none; border-radius: 5px; cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
         }
-        #results { margin-top: 2rem; text-align: right; }
-        .result-item { background-color: #e8f0fe; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
-        .footer { margin-top: 2rem; text-align: center; font-size: 0.8rem; color: #888; }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: white;
+            text-align: right;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-weight: bold;
+            color: white;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #results {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .result-item {
+            background-color: #e8f0fe;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
         #scrollToTopBtn {
-            display: none; position: fixed; bottom: 20px; right: 20px; z-index: 99;
-            border: none; outline: none; background-color: var(--primary-color); color: white;
-            cursor: pointer; padding: 0; border-radius: 50%; width: 45px; height: 45px;
-            font-size: 22px; line-height: 45px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 22px;
+            line-height: 45px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
-        
+
         /* Modal Styles */
         .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
         }
+
         .modal-content {
-            background-color: #fefefe; margin: auto; padding: 25px; border-radius: 10px;
-            width: 90%; max-width: 700px; text-align: right; /* Widened for new layout */
+            background-color: #fefefe;
+            margin: auto;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            text-align: right; /* Widened for new layout */
         }
-        .close-btn { color: #aaa; float: left; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .modal-content h2 { margin-top: 0; display: flex; align-items: center; gap: 1rem; }
-        .modal-section { margin-bottom: 1.5rem; }
-        .day-selector { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 5px; margin-top: 0.5rem; }
-        .day-selector label { display: flex; align-items: center; gap: 0.3rem; padding: 5px 10px; border: 1px solid #ddd; border-radius: 20px; cursor: pointer; }
-        .lifespan-selector { display: flex; align-items: center; gap: 0.5rem; }
-        .lifespan-selector button { font-size: 0.9rem; padding: 5px 10px; background-color: #ddd; color: #333; }
-        .lifespan-selector button.active { background-color: var(--primary-color); color: white; }
-        #custom-periods-list { list-style-type: none; padding: 0; max-height: 100px; overflow-y: auto; }
-        #custom-periods-list li { display: flex; justify-content: space-between; align-items: center; background: #f0f2f5; padding: 5px 10px; border-radius: 5px; margin-bottom: 5px;}
-        .settings-io button, .save-settings-btn { font-size: 0.9rem; padding: 8px 12px; }
-        .settings-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;}
-        #save-confirmation { color: green; font-weight: bold; visibility: hidden; transition: visibility 0s 1s; }
-        #holidayList { list-style-type: none; padding: 0; max-height: 400px; overflow-y: auto; }
-        #holidayList li { margin-bottom: 0.5rem; }
+
+        .close-btn {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .modal-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .day-selector {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 0.5rem;
+        }
+
+        .day-selector label {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .lifespan-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lifespan-selector button {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            background-color: #ddd;
+            color: #333;
+        }
+
+        .lifespan-selector button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        #custom-periods-list {
+            list-style-type: none;
+            padding: 0;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        #custom-periods-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f0f2f5;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        .settings-io button,
+        .save-settings-btn {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+
+        .settings-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        #save-confirmation {
+            color: green;
+            font-weight: bold;
+            visibility: hidden;
+            transition: visibility 0s 1s;
+        }
+
+        #holidayList {
+            list-style-type: none;
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        #holidayList li {
+            margin-bottom: 0.5rem;
+        }
 
         /* New Styles for Settings Modal Layout */
         .checkbox-label {
-            display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: normal;
         }
+
         .day-selectors-container {
             display: flex;
             flex-direction: column; /* Mobile-first: stack vertically */
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
+
         @media (min-width: 650px) {
             .day-selectors-container {
                 flex-direction: row; /* Side-by-side on wider screens */
                 gap: 1.5rem;
             }
+
             .day-selectors-container > .modal-section {
                 flex: 1; /* Make them share space equally */
                 margin-bottom: 0;
             }
         }
-
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header">
             <span class="icon settings-icon" onclick="openSettingsModal()">⚙️</span>
@@ -123,44 +350,48 @@
         <button onclick="findSafeDates()">מצא תאריכים מומלצים</button>
         <div id="results"></div>
     </div>
-    
-    <div class="footer">
-                <p>Dev: <a href="https://www.linkedin.com/in/chagai-yechiel/" target="_blank" rel="noopener noreferrer">Chagai Yechiel</a></p>
 
+    <div class="footer">
+        <p>
+            Dev:
+            <a href="https://www.linkedin.com/in/chagai-yechiel/" target="_blank" rel="noopener noreferrer">
+                Chagai Yechiel
+            </a>
+        </p>
         <p>Version 2.0</p>
     </div>
 
     <button onclick="scrollToTop()" id="scrollToTopBtn" title="חזרה למעלה">↑</button>
 
     <div id="holidayModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal('holidayModal')">&times;</span>
-        <h2 id="holidayModalTitle">אודות וחגים קרובים</h2>
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('holidayModal')">&times;</span>
+            <h2 id="holidayModalTitle">אודות וחגים קרובים</h2>
 
-        <div style="margin-bottom: 1.5rem;">
-            <p>כלי זה נועד למצוא את התאריך הבטוח והנוח ביותר להחלפת סיסמה. המטרה היא למנוע מצב שבו סיסמה פגה ביום לא נוח (כמו סוף שבוע או חג), ובכך להקל על המשתמש ולמנוע עומס מיותר על מחלקת ה-IT.</p>
-            <p>הכלי מאפשר התאמה אישית מלאה של החוקים באמצעות תפריט ההגדרות (⚙️), כולל:</p>
-            <ul style="padding-right: 20px; margin-top: 0.5rem;">
-                <li>קביעת ימי שבוע חסומים.</li>
-                <li>הוספת תקופות חסימה מותאמות אישית (למשל, "סוף רבעון").</li>
-                <li>הפעלה או כיבוי של חסימת ערבי חג.</li>
-                <li>ייצוא וייבוא של כל ההגדרות לצורך גיבוי או שיתוף.</li>
-            </ul>
+            <div style="margin-bottom: 1.5rem;">
+                <p>
+                    כלי זה נועד למצוא את התאריך הבטוח והנוח ביותר להחלפת סיסמה. המטרה היא למנוע מצב שבו סיסמה פגה ביום לא נוח (כמו סוף שבוע או חג), ובכך להקל על המשתמש ולמנוע עומס מיותר על מחלקת ה-IT.
+                </p>
+                <p>הכלי מאפשר התאמה אישית מלאה של החוקים באמצעות תפריט ההגדרות (⚙️), כולל:</p>
+                <ul style="padding-right: 20px; margin-top: 0.5rem;">
+                    <li>קביעת ימי שבוע חסומים.</li>
+                    <li>הוספת תקופות חסימה מותאמות אישית (למשל, "סוף רבעון").</li>
+                    <li>הפעלה או כיבוי של חסימת ערבי חג.</li>
+                    <li>ייצוא וייבוא של כל ההגדרות לצורך גיבוי או שיתוף.</li>
+                </ul>
+            </div>
+            <hr>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">ימי שבתון קרובים:</h3>
+            <ul id="holidayList" style="list-style-type: none; padding: 0; max-height: 200px; overflow-y: auto;"></ul>
         </div>
-        <hr>
-
-        <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">ימי שבתון קרובים:</h3>
-        <ul id="holidayList" style="list-style-type: none; padding: 0; max-height: 200px; overflow-y: auto;"></ul>
     </div>
-
-</div>
-</div>
     
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('settingsModal')">&times;</span>
             <h2>הגדרות תכנון</h2>
-            
+
             <div class="modal-section">
                 <label for="lifespan">תוקף סיסמה (בימים):</label>
                 <div class="lifespan-selector">
@@ -184,13 +415,13 @@
                     <label>ימי התחלה חסומים:</label>
                     <div class="day-selector" id="start-day-selector"></div>
                 </div>
-                
+
                 <div class="modal-section">
                     <label>ימי תפוגה חסומים:</label>
                     <div class="day-selector" id="exp-day-selector"></div>
                 </div>
             </div>
-            
+
             <div class="modal-section">
                 <label>הוסף תקופת חסימה מותאמת אישית:</label>
                 <div class="input-group">
@@ -201,7 +432,7 @@
                 <button class="settings-io" onclick="addCustomPeriod()">הוסף תקופה</button>
                 <ul id="custom-periods-list"></ul>
             </div>
-            
+
             <div class="settings-footer">
                 <div class="settings-io">
                     <button onclick="exportSettings()">ייצא</button>
@@ -212,29 +443,38 @@
                     <button class="save-settings-btn" onclick="saveAndCloseSettings()">שמור וסגור</button>
                 </div>
             </div>
-            <input type="file" id="importFile" style="display:none;" onchange="handleFileImport(event)">
+            <input type="file" id="importFile" style="display: none;" onchange="handleFileImport(event)">
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/he.js"></script>
-    
+
     <script>
         let settings = {};
         const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
 
         function setDefaultSettings() {
-             settings = {
+            settings = {
                 lifespan: 180,
                 blockHolidayEves: true,
                 blockedStartDays: [0, 4, 5, 6],
                 blockedExpirationDays: [0, 4, 5, 6],
                 holidays: {
-                    "2025-09-23": "ראש השנה א'", "2025-09-24": "ראש השנה ב'", "2025-10-02": "יום כיפור",
-                    "2025-10-07": "סוכות", "2025-10-14": "שמחת תורה", "2026-04-02": "פסח א'",
-                    "2026-04-08": "שביעי של פסח", "2026-04-29": "יום העצמאות", "2026-05-22": "שבועות",
-                    "2026-09-13": "ראש השנה א'", "2026-09-14": "ראש השנה ב'", "2026-09-22": "יום כיפור",
-                    "2026-09-27": "סוכות", "2026-10-04": "שמחת תורה"
+                    "2025-09-23": "ראש השנה א'",
+                    "2025-09-24": "ראש השנה ב'",
+                    "2025-10-02": "יום כיפור",
+                    "2025-10-07": "סוכות",
+                    "2025-10-14": "שמחת תורה",
+                    "2026-04-02": "פסח א'",
+                    "2026-04-08": "שביעי של פסח",
+                    "2026-04-29": "יום העצמאות",
+                    "2026-05-22": "שבועות",
+                    "2026-09-13": "ראש השנה א'",
+                    "2026-09-14": "ראש השנה ב'",
+                    "2026-09-22": "יום כיפור",
+                    "2026-09-27": "סוכות",
+                    "2026-10-04": "שמחת תורה"
                 },
                 customPeriods: []
             };
@@ -260,7 +500,9 @@
                         const day = parseInt(parts[0], 10);
                         const month = parseInt(parts[1], 10);
                         let year = parseInt(parts[2], 10);
-                        if (year < 100) { year += 2000; }
+                        if (year < 100) {
+                            year += 2000;
+                        }
                         if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
                             return new Date(year, month - 1, day);
                         }
@@ -277,29 +519,29 @@
                     }
                 }
             };
-            flatpickr("#startDate, #endDate", {...config});
-            flatpickr("#customPeriodStart, #customPeriodEnd", {...config, minDate: null});
+            flatpickr("#startDate, #endDate", { ...config });
+            flatpickr("#customPeriodStart, #customPeriodEnd", { ...config, minDate: null });
         }
 
         function setupEventListeners() {
             document.querySelector('.lifespan-selector').addEventListener('click', (e) => {
-                if(e.target.tagName === 'BUTTON') {
+                if (e.target.tagName === 'BUTTON') {
                     const days = e.target.dataset.days;
                     document.getElementById('lifespan').value = days;
                     updateLifespanButtons(days);
                 }
             });
         }
-        
+
         function updateLifespanButtons(currentDays) {
             document.querySelectorAll('.lifespan-selector button').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.days === String(currentDays));
             });
-            if (!['30','90', '180', '365'].includes(String(currentDays))) {
+            if (!['30', '90', '180', '365'].includes(String(currentDays))) {
                 document.querySelectorAll('.lifespan-selector button').forEach(btn => btn.classList.remove('active'));
             }
         }
-        
+
         function loadSettings() {
             const savedSettings = localStorage.getItem('safeScheduleSettings');
             setDefaultSettings(); // Always start with defaults to ensure all keys exist
@@ -321,14 +563,14 @@
             renderCustomPeriods();
             openModal('settingsModal');
         }
-        
+
         function saveAndCloseSettings() {
             settings.lifespan = parseInt(document.getElementById('lifespan').value) || 180;
             settings.blockHolidayEves = document.getElementById('blockHolidayEves').checked;
             settings.blockedStartDays = Array.from(document.querySelectorAll('#start-day-selector input:checked')).map(cb => parseInt(cb.value));
             settings.blockedExpirationDays = Array.from(document.querySelectorAll('#exp-day-selector input:checked')).map(cb => parseInt(cb.value));
             saveSettings();
-            
+
             const confirmation = document.getElementById('save-confirmation');
             confirmation.style.visibility = 'visible';
             setTimeout(() => {
@@ -362,7 +604,7 @@
             }
 
             // Check 3: Is it within a custom blocked period?
-            for(const period of settings.customPeriods) {
+            for (const period of settings.customPeriods) {
                 const pStart = new Date(period.start + "T00:00:00");
                 const pEnd = new Date(period.end + "T00:00:00");
                 if (cleanDate >= pStart && cleanDate <= pEnd) {
@@ -379,9 +621,17 @@
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
 
-            if (!startDate) { resultsDiv.innerHTML = '<p style="color: red;">יש לבחור תאריך התחלה.</p>'; return; }
-            if (!endDate) { endDate = startDate; }
-            if (endDate < startDate) { resultsDiv.innerHTML = '<p style="color: red;">תאריך הסיום חייב להיות אחרי תאריך ההתחלה.</p>'; return; }
+            if (!startDate) {
+                resultsDiv.innerHTML = '<p style="color: red;">יש לבחור תאריך התחלה.</p>';
+                return;
+            }
+            if (!endDate) {
+                endDate = startDate;
+            }
+            if (endDate < startDate) {
+                resultsDiv.innerHTML = '<p style="color: red;">תאריך הסיום חייב להיות אחרי תאריך ההתחלה.</p>';
+                return;
+            }
 
             let foundCount = 0;
             let currentDay = new Date(startDate);
@@ -400,38 +650,48 @@
                 resultsDiv.innerHTML = '<p style="color: orange; font-weight: bold; margin-top: 1rem;">לא נמצאו תאריכים מומלצים בטווח שהוגדר על פי הכללים הנוכחיים.</p>';
             }
         }
-        
+
         function openHolidaysModal() {
-    const list = document.getElementById('holidayList');
-    // The title is now static in the HTML, so dynamic title logic is removed.
-    const currentLifespan = parseInt(document.getElementById('lifespan').value) || settings.lifespan || 180;
-    list.innerHTML = '';
-    
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const futureDate = new Date(today);
-    futureDate.setDate(today.getDate() + currentLifespan);
+            const list = document.getElementById('holidayList');
+            // The title is now static in the HTML, so dynamic title logic is removed.
+            const currentLifespan = parseInt(document.getElementById('lifespan').value) || settings.lifespan || 180;
+            list.innerHTML = '';
 
-    const relevantHolidays = Object.entries(settings.holidays)
-        .map(([dateStr, desc]) => ({ date: new Date(dateStr + "T00:00:00"), desc }))
-        .filter(h => h.date >= today && h.date <= futureDate)
-        .sort((a,b) => a.date - b.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const futureDate = new Date(today);
+            futureDate.setDate(today.getDate() + currentLifespan);
 
-    if (relevantHolidays.length > 0) {
-        relevantHolidays.forEach(h => {
-            const li = document.createElement('li');
-            li.innerHTML = `<strong>${h.date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })}:</strong> ${h.desc}`;
-            list.appendChild(li);
-        });
-    } else {
-        list.innerHTML = '<li>לא נמצאו ימי שבתון בטווח הזמן שנבחר.</li>';
-    }
-    openModal('holidayModal');
-}
-        
-        function openModal(modalId) { document.getElementById(modalId).style.display = "flex"; }
-        function closeModal(modalId) { document.getElementById(modalId).style.display = "none"; }
-        window.onclick = function(event) { if (event.target.classList.contains('modal')) { event.target.style.display = "none"; } }
+            const relevantHolidays = Object.entries(settings.holidays)
+                .map(([dateStr, desc]) => ({ date: new Date(dateStr + "T00:00:00"), desc }))
+                .filter(h => h.date >= today && h.date <= futureDate)
+                .sort((a, b) => a.date - b.date);
+
+            if (relevantHolidays.length > 0) {
+                relevantHolidays.forEach(h => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${h.date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })}:</strong> ${h.desc}`;
+                    list.appendChild(li);
+                });
+            } else {
+                list.innerHTML = '<li>לא נמצאו ימי שבתון בטווח הזמן שנבחר.</li>';
+            }
+            openModal('holidayModal');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "flex";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
 
         const scrollToTopBtn = document.getElementById("scrollToTopBtn");
         window.onscroll = function() {
@@ -441,17 +701,56 @@
                 scrollToTopBtn.style.display = "none";
             }
         };
+
         function scrollToTop() {
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function populateDaySelectors(){const t=document.getElementById("start-day-selector"),e=document.getElementById("exp-day-selector");t.innerHTML="",e.innerHTML="";for(let o=0;o<7;o++)t.innerHTML+=`<label><input type="checkbox" value="${o}" ${settings.blockedStartDays.includes(o)?"checked":""}> ${dayNames[o]}</label>`,e.innerHTML+=`<label><input type="checkbox" value="${o}" ${settings.blockedExpirationDays.includes(o)?"checked":""}> ${dayNames[o]}</label>`}
-        function exportSettings(){const t="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(settings)),e=document.createElement("a");e.setAttribute("href",t),e.setAttribute("download","schedule_settings.json"),document.body.appendChild(e),e.click(),document.body.removeChild(e)}
+        function exportSettings() {
+            const t = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(settings));
+            const e = document.createElement("a");
+            e.setAttribute("href", t);
+            e.setAttribute("download", "schedule_settings.json");
+            document.body.appendChild(e);
+            e.click();
+            document.body.removeChild(e);
+        }
         function importSettings(){document.getElementById("importFile").click()}
         function handleFileImport(t){const e=t.target.files[0];if(e){const o=new FileReader;o.onload=function(t){try{const e=JSON.parse(t.target.result);settings=e,saveSettings(),alert("ההגדרות יובאו בהצלחה!"),openSettingsModal()}catch(t){alert("שגיאה בקריאת הקובץ. ודא שזהו קובץ הגדרות תקין.")}},o.readAsText(e)}}
-        function addCustomPeriod(){const t=document.getElementById("customPeriodName").value,e=document.querySelector("#customPeriodStart")._flatpickr.selectedDates[0],o=document.querySelector("#customPeriodEnd")._flatpickr.selectedDates[0];t&&e&&o&&o>=e?(settings.customPeriods.push({name:t,start:e.toISOString().split("T")[0],end:o.toISOString().split("T")[0]}),saveSettings(),renderCustomPeriods(),document.getElementById("customPeriodName").value="",document.querySelector("#customPeriodStart")._flatpickr.clear(),document.querySelector("#customPeriodEnd")._flatpickr.clear()):alert("נא למלא שם ותקופת תאריכים תקינה.")}
-        function removeCustomPeriod(t){settings.customPeriods.splice(t,1),saveSettings(),renderCustomPeriods()}
-        function renderCustomPeriods(){const t=document.getElementById("custom-periods-list");t.innerHTML="",settings.customPeriods.forEach((e,o)=>{t.innerHTML+=`<li><span>${e.name} (${e.start} - ${e.end})</span><span class="close-btn" onclick="removeCustomPeriod(${o})">&times;</span></li>`})}
+        function addCustomPeriod() {
+            const t = document.getElementById("customPeriodName").value;
+            const e = document.querySelector("#customPeriodStart")._flatpickr.selectedDates[0];
+            const o = document.querySelector("#customPeriodEnd")._flatpickr.selectedDates[0];
+            if (t && e && o && o >= e) {
+                settings.customPeriods.push({
+                    name: t,
+                    start: e.toISOString().split("T")[0],
+                    end: o.toISOString().split("T")[0]
+                });
+                saveSettings();
+                renderCustomPeriods();
+                document.getElementById("customPeriodName").value = "";
+                document.querySelector("#customPeriodStart")._flatpickr.clear();
+                document.querySelector("#customPeriodEnd")._flatpickr.clear();
+            } else {
+                alert("נא למלא שם ותקופת תאריכים תקינה.");
+            }
+        }
+
+        function removeCustomPeriod(t) {
+            settings.customPeriods.splice(t, 1);
+            saveSettings();
+            renderCustomPeriods();
+        }
+
+        function renderCustomPeriods() {
+            const t = document.getElementById("custom-periods-list");
+            t.innerHTML = "";
+            settings.customPeriods.forEach((e, o) => {
+                t.innerHTML += `<li><span>${e.name} (${e.start} - ${e.end})</span><span class="close-btn" onclick="removeCustomPeriod(${o})">&times;</span></li>`;
+            });
+        }
     
     </script>
 
